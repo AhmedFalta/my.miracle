@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta name="robots" content="noindex, nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Page 4</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #ffe6f2;
+      overflow: hidden;
+      position: relative;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .heart {
+      position: absolute;
+      color: rgba(255, 0, 0, 0.15);
+      pointer-events: none;
+      animation: glow 3s infinite;
+    }
+    @keyframes glow {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.3; }
+    }
+    .falling-heart {
+      position: fixed;
+      color: rgba(255, 105, 180, 0.3);
+      animation: fall 3s linear infinite;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 1;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-150%) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 1; }
+    }
+    /* صندوق العداد في النص مع حواف وردية */
+    .countdown-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      width: 85%;
+      max-width: 600px;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 1.2em;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border: 2px solid pink;
+    }
+    .rip-text {
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .countdown-text {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.7em;
+    }
+    .timer {
+      font-size: 0.9em;
+      color: #d9534f;
+    }
+    .button-container {
+      position: relative;
+      margin-top: 20px;
+      height: 40px;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease-in-out;
+      position: absolute;
+      top: 0;
+      height: 100%;
+    }
+    .revive {
+      background: green;
+      color: white;
+      width: 120px;
+      left: 0;
+      z-index: 2;
+    }
+    .leave {
+      background: red;
+      color: white;
+      right: 0;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="heartsContainer"></div>
+  <div id="fallingHearts"></div>
+
+  <div class="countdown-box">
+    <div class="rip-text">RIP Ahmed (14/11/2024-18/2/2025)</div>
+    <div class="countdown-text">
+      <span>Last time seen alive was:</span>
+      <span id="timer" class="timer"></span>
+    </div>
+    <div class="button-container">
+      <button id="reviveBtn" class="btn revive">Revive</button>
+      <button id="leaveBtn" class="btn leave">Leave him</button>
+    </div>
+  </div>
+
+  <script>
+    // إنشاء القلوب الثابتة
+    function createHearts() {
+      const container = document.getElementById('heartsContainer');
+      const hearts = [];
+      const heartCount = 30;
+      const minSize = 100, maxSize = 250, padding = 50;
+      function isOverlapping(newHeart) {
+        return hearts.some(existingHeart => {
+          const dx = newHeart.x - existingHeart.x;
+          const dy = newHeart.y - existingHeart.y;
+          return Math.sqrt(dx*dx + dy*dy) < (newHeart.size + existingHeart.size)/2 + padding;
+        });
+      }
+      function createHeart() {
+        let attempts = 0;
+        while(attempts < 1000) {
+          const size = Math.random() * (maxSize - minSize) + minSize;
+          const x = Math.random() * (window.innerWidth - size);
+          const y = Math.random() * (window.innerHeight - size);
+          const newHeart = { x, y, size };
+          if(!isOverlapping(newHeart)) { hearts.push(newHeart); return newHeart; }
+          attempts++;
+        }
+        return null;
+      }
+      for(let i = 0; i < heartCount; i++) {
+        const heartData = createHeart();
+        if(!heartData) continue;
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = '❤️';
+        heart.style.left = heartData.x + 'px';
+        heart.style.top = heartData.y + 'px';
+        heart.style.fontSize = heartData.size + 'px';
+        heart.style.transform = `rotate(${Math.random()*360}deg)`;
+        container.appendChild(heart);
+      }
+    }
+    // إنشاء القلوب المتساقطة
+    function createFallingHearts() {
+      const container = document.getElementById('fallingHearts');
+      for(let i = 0; i < 50; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'falling-heart';
+        heart.innerHTML = '❤️';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (Math.random()*30+20) + 'px';
+        heart.style.animationDuration = (Math.random()*3+2) + 's';
+        heart.style.animationDelay = Math.random()*5 + 's';
+        container.appendChild(heart);
+      }
+    }
+    createHearts();
+    createFallingHearts();
+
+    // تحديث العداد الزمني
+    function updateTimer() {
+      // تحديد تاريخ البدء: 18/2/2025 الساعة 4:30 عصرًا
+      const startDate = new Date("2025-02-18T16:30:00").getTime();
+      setInterval(() => {
+        const now = new Date().getTime();
+        const elapsedTime = now - startDate;
+
+        const days = Math.floor(elapsedTime / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((elapsedTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+
+        document.getElementById("timer").innerText = 
+          `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }, 1000);
+    }
+    updateTimer();
+
+    // عند الضغط على زر Leave him، يتم توسيع عرض زر Revive تدريجياً حتى يغطي زر Leave him
+    document.getElementById('leaveBtn').addEventListener('click', function() {
+      const reviveBtn = document.getElementById('reviveBtn');
+      const currentWidth = parseFloat(window.getComputedStyle(reviveBtn).width);
+      const containerWidth = document.querySelector('.button-container').offsetWidth;
+      const newWidth = currentWidth + 20; // زيادة 20 بكسل في كل ضغط
+      reviveBtn.style.width = (newWidth > containerWidth ? containerWidth : newWidth) + "px";
+    });
+
+    // عند الضغط على زر Revive، يتم نقل المستخدم إلى شات الواتساب الخاص بكم
+    document.getElementById('reviveBtn').addEventListener('click', function() {
+      window.location.href = "https://api.whatsapp.com/send?phone=201032877134&text=انت%20وحشتني%20اوي%20بجد!";
+    });
+  </script>
+</body>
+</html>

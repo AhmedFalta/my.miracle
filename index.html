@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta name="robots" content="noindex, nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apology Message</title>
+  <style>
+    /* التأكد من إن الصفحة بتاخد كامل العرض والارتفاع */
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #ffe6f2;
+      overflow: hidden;
+      position: relative;
+    }
+    /* ضبط الحاويات بحيث تملأ الشاشة */
+    #heartsContainer, #fallingHearts {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+    .heart {
+      position: absolute;
+      color: rgba(255, 0, 0, 0.15);
+      pointer-events: none;
+      animation: glow 3s infinite;
+    }
+    @keyframes glow {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.3; }
+    }
+    .falling-heart {
+      position: fixed;
+      color: rgba(255, 105, 180, 0.3);
+      animation: fall 3s linear infinite;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 1;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-150%) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 1; }
+    }
+    .apology-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #ff69b4;
+      box-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
+      width: 320px;
+      max-width: 85%;
+      z-index: 9999;
+    }
+    .sticker-placeholder {
+      width: 80px;
+      height: 80px;
+      border: 2px dashed #fff;
+      margin: 0 auto 15px;
+      border-radius: 8px;
+      background: #fff;
+    }
+    /* هنا نضيف الـ <img> داخل كل sticker-placeholder */
+    .sticker-placeholder img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    .question {
+      text-align: center;
+      color: #ff1493;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    input {
+      flex: 1;
+      padding: 8px;
+      border: 2px solid #ffb3d9;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-left: -10px;
+    }
+    button {
+      padding: 8px 20px;
+      background: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-left: -5px;
+    }
+    button:hover { background: #ff1493; }
+    @media (max-width: 480px) {
+      input { font-size: 16px; }
+      .apology-box { width: 85%; }
+    }
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .backBtn {
+      position: absolute;
+      bottom: 3px;
+      left: 3px;
+      background: none !important;
+      border: none !important;
+      outline: none !important;
+      -webkit-appearance: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #ff69b4;
+    }
+    .backBtn:active { background: none; }
+    .finalBtn {
+      padding: 8px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .finalBtn:hover { background: #45a049; }
+  </style>
+  <style>
+    .transition-shrink {
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+    .transition-grow {
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    #nameBox {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="heartsContainer"></div>
+  <div id="fallingHearts"></div>
+
+  <div class="apology-box" id="mainBox">
+    <!-- أضف صورة الملصق هنا -->
+    <div class="sticker-placeholder">
+      <img src="who_are_you.gif" alt="Sticker">
+    </div>
+    <h2 class="question">Who are you?</h2>
+    <div class="input-group">
+      <input type="text" placeholder="Type your answer">
+      <button>Submit</button>
+    </div>
+  </div>
+
+  <div class="apology-box" id="princessNameBox" style="display: none;">
+    <!-- أضف صورة الملصق هنا -->
+    <div class="sticker-placeholder">
+      <img src="W.webp" alt="Sticker">
+    </div>
+    <h2 class="question">So what's my princess's name?</h2>
+    <div class="input-group">
+      <input type="text" id="princessNameInput" placeholder="Type your answer">
+      <button id="princessNameSubmit">Submit</button>
+    </div>
+    <p id="princessNameError" class="error-message"></p>
+  </div>
+
+  <div class="apology-box" id="finalBox" style="display: none;">
+    <!-- أضف صورة الملصق هنا -->
+    <div class="sticker-placeholder">
+      <img src="A.webp" alt="Sticker">
+    </div>
+    <h2 class="question">It's really really you🥹♥️</h2>
+    <div class="input-group" style="justify-content: center;">
+      <button id="finalButton" class="finalBtn">Yeaaa it's meee</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('touchstart', function(e) {
+      if(e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
+    // توزيع بخلية كبيرة + حجم قلب عشوائي => عدد أقل من القلوب + فراغ أكبر
+    function createHearts() {
+      const container = document.getElementById('heartsContainer');
+      container.innerHTML = ""; // تفريغ الحاوية قبل الإنشاء
+
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+
+      // حجم الخلية (كل خلية تحتوي قلبًا واحدًا)
+      const cellSize = 147; // كلما زودت القيمة قل عدد القلوب وزاد الفراغ
+      // نطاق الأحجام العشوائية للقلوب
+      const heartMinSize = 50;
+      const heartMaxSize = 120;
+
+      // حساب عدد الأعمدة والصفوف
+      const cols = Math.floor(containerWidth / cellSize);
+      const rows = Math.floor(containerHeight / cellSize);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          // حجم القلب عشوائي
+          const size = Math.random() * (heartMaxSize - heartMinSize) + heartMinSize;
+
+          // نضع القلب في منتصف الخلية حتى ما يقربش من الحواف
+          const x = c * cellSize + (cellSize / 2) - (size / 2);
+          const y = r * cellSize + (cellSize / 2) - (size / 2);
+
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.innerHTML = '❤️';
+          heart.style.left = x + 'px';
+          heart.style.top = y + 'px';
+          heart.style.fontSize = size + 'px';
+          heart.style.transform = `rotate(${Math.random() * 360}deg)`;
+          container.appendChild(heart);
+        }
+      }
+    }
+
+    // الدالة الأصلية للقلوب الساقطة كما هي
+    function createFallingHearts() {
+      const container = document.getElementById('fallingHearts');
+      for(let i = 0; i < 50; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'falling-heart';
+        heart.innerHTML = '❤️';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
+        heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        heart.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(heart);
+      }
+    }
+
+    // باقي الكود كما هو (التعامل مع الرسائل والصناديق)
+    let messageState = "", originalMainBoxHTML = "";
+
+    function attachMainBoxSubmit() {
+      const mainBox = document.getElementById('mainBox');
+      if(!originalMainBoxHTML) { originalMainBoxHTML = mainBox.innerHTML; }
+      mainBox.querySelector('button').addEventListener('click', function(e) {
+        e.preventDefault();
+        const input = mainBox.querySelector('input');
+        mainBox.querySelectorAll('.error-message').forEach(err => err.remove());
+        if(input.value.trim().toLowerCase() === 'your princess') {
+          mainBox.querySelectorAll('.sticker-placeholder, .question, .input-group').forEach(el => el.style.display = 'none');
+          const newContent = `
+            <p id="responseText" style="color:#ff1493;font-size:1.5em;text-align:center;margin:0 0 20px 0">Really? 🥺</p>
+            <div id="btnContainer" style="display:flex;gap:10px;justify-content:center"></div>
+          `;
+          mainBox.insertAdjacentHTML('beforeend', newContent);
+          messageState = "really_initial";
+          attachButtonListeners();
+        } else {
+          const errorMsg = document.createElement('p');
+          errorMsg.className = 'error-message';
+          errorMsg.textContent = "Nuh uh, the only correct answer is 'Your Princess'";
+          mainBox.appendChild(errorMsg);
+        }
+      });
+    }
+
+    window.onload = function() {
+      createHearts();
+      createFallingHearts();
+      attachMainBoxSubmit();
+    };
+
+    function attachButtonListeners() {
+      const btnContainer = document.getElementById('btnContainer');
+      btnContainer.innerHTML = `
+        <button id="yesBtn" style="background:#4CAF50;padding:10px 25px;border:none;border-radius:5px;color:white;cursor:pointer">Yes</button>
+        <button id="noBtn" style="background:#f44336;padding:10px 25px;border:none;border-radius:5px;color:white;cursor:pointer">No</button>
+      `;
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      if(yesBtn) {
+        yesBtn.addEventListener('click', function() {
+          if(messageState === "really_initial") { updateReallyYes(); }
+          else if(messageState === "really_ready" || messageState === "ready") { transitionToPrincessNameBox(); }
+        });
+      }
+      if(noBtn) {
+        noBtn.addEventListener('click', function() {
+          if(messageState === "really_initial") { updateReallyNo(); }
+        });
+      }
+    }
+
+    function updateReallyYes() {
+      const responseText = document.getElementById('responseText');
+      if(responseText) { responseText.innerHTML = "i really missed you🥹🥹🥹"; }
+      const btnContainer = document.getElementById('btnContainer');
+      if(btnContainer) {
+        btnContainer.innerHTML = "";
+        const transBtn = document.createElement('button');
+        transBtn.textContent = "Yeaaa me tooo";
+        transBtn.style.backgroundColor = "#4CAF50";
+        transBtn.style.padding = "10px 25px";
+        transBtn.style.border = "none";
+        transBtn.style.borderRadius = "5px";
+        transBtn.style.color = "white";
+        transBtn.style.cursor = "pointer";
+        transBtn.addEventListener('click', function() { transitionToPrincessNameBox(); });
+        btnContainer.appendChild(transBtn);
+      }
+      messageState = "really_ready";
+    }
+
+    function updateReallyNo() {
+      const responseText = document.getElementById('responseText');
+      if(responseText) { responseText.innerHTML = "Are you messing with me? 🤨"; }
+      const btnContainer = document.getElementById('btnContainer');
+      if(btnContainer) {
+        btnContainer.innerHTML = "";
+        const btn1 = document.createElement('button');
+        btn1.textContent = "Yes";
+        btn1.style.backgroundColor = "#4CAF50";
+        btn1.style.padding = "10px 25px";
+        btn1.style.border = "none";
+        btn1.style.borderRadius = "5px";
+        btn1.style.color = "white";
+        btn1.style.cursor = "pointer";
+        btn1.addEventListener('click', function() { updateYeahInitially(); });
+        const btn2 = document.createElement('button');
+        btn2.textContent = "Yes";
+        btn2.style.backgroundColor = "#4CAF50";
+        btn2.style.padding = "10px 25px";
+        btn2.style.border = "none";
+        btn2.style.borderRadius = "5px";
+        btn2.style.color = "white";
+        btn2.style.cursor = "pointer";
+        btn2.addEventListener('click', function() { updateYeahInitially(); });
+        btnContainer.style.justifyContent = "center";
+        btnContainer.appendChild(btn1);
+        btnContainer.appendChild(btn2);
+      }
+      messageState = "yeah_initial";
+    }
+
+    function updateYeahInitially() {
+      const responseText = document.getElementById('responseText');
+      if(responseText) { responseText.innerHTML = "Yeah as i thought, My beautiful princess💋☺️"; }
+      const btnContainer = document.getElementById('btnContainer');
+      if(btnContainer) {
+        btnContainer.innerHTML = "";
+        const singleBtn = document.createElement('button');
+        singleBtn.textContent = "Fuck You";
+        singleBtn.style.backgroundColor = "#4CAF50";
+        singleBtn.style.padding = "10px 25px";
+        singleBtn.style.border = "none";
+        singleBtn.style.borderRadius = "5px";
+        singleBtn.style.color = "white";
+        singleBtn.style.cursor = "pointer";
+        singleBtn.style.display = "block";
+        singleBtn.style.margin = "0 auto";
+        singleBtn.addEventListener('click', function() { updateFuckState(singleBtn); });
+        btnContainer.appendChild(singleBtn);
+      }
+      messageState = "fuck";
+    }
+
+    function updateFuckState(btn) {
+      const responseText = document.getElementById('responseText');
+      if(responseText) { responseText.innerHTML = "i really missed you🥹🥹🥹"; }
+      btn.textContent = "Yeaaa me tooo";
+      messageState = "ready";
+      btn.onclick = function() { transitionToPrincessNameBox(); };
+    }
+
+    function transitionToPrincessNameBox() {
+      const mainBox = document.getElementById('mainBox');
+      mainBox.classList.add('transition-shrink');
+      setTimeout(function() {
+        mainBox.style.display = 'none';
+        const princessBox = document.getElementById('princessNameBox');
+        princessBox.style.display = 'block';
+        void princessBox.offsetWidth;
+        princessBox.classList.add('transition-grow');
+        addBackButton(princessBox);
+      }, 500);
+    }
+
+    document.getElementById('princessNameSubmit').addEventListener('click', function(e) {
+      e.preventDefault();
+      const input = document.getElementById('princessNameInput').value.trim().toLowerCase();
+      const errorElem = document.getElementById('princessNameError');
+      errorElem.style.color = "red";
+      if(input === "mariam ali shebl sayed ahmed") {
+        errorElem.textContent = "";
+        transitionToFinalBox();
+      } else if(input === "i don't know man") {
+        errorElem.textContent = "Yeah you know exactly who I'm talking about, my beautiful princess 💋";
+      } else if(input === "mariam") {
+        errorElem.textContent = "Keep going";
+      } else if(input === "mariam ali") {
+        errorElem.textContent = "هه عبط احنا we've seen this movie before, the only correct answer is 'Mariam Ali Shebl Sayed Ahmed'";
+      } else {
+        errorElem.textContent = "Try again, my princess!";
+      }
+    });
+
+    function transitionToFinalBox() {
+      const princessBox = document.getElementById('princessNameBox');
+      princessBox.classList.add('transition-shrink');
+      setTimeout(function() {
+        princessBox.style.display = 'none';
+        const finalBox = document.getElementById('finalBox');
+        finalBox.style.display = 'block';
+        void finalBox.offsetWidth;
+        finalBox.classList.add('transition-grow');
+        document.getElementById('finalButton').addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href ="page2.html";
+        });
+      }, 500);
+    }
+
+    function addBackButton(box) {
+      if(box.id === "mainBox") return;
+      let existing = box.querySelector('.backBtn');
+      if(existing) { existing.remove(); }
+      const backBtn = document.createElement('button');
+      backBtn.className = "backBtn";
+      backBtn.innerHTML = "<";
+      backBtn.addEventListener('click', function() { goBack(box); });
+      box.appendChild(backBtn);
+    }
+
+    function goBack(box) {
+      if(box.id === "princessNameBox" || box.id === "finalBox") {
+        box.classList.add('transition-shrink');
+        setTimeout(function() {
+          box.style.display = 'none';
+          const mainBox = document.getElementById('mainBox');
+          mainBox.style.display = 'block';
+          void mainBox.offsetWidth;
+          mainBox.classList.remove('transition-shrink');
+          mainBox.classList.add('transition-grow');
+          mainBox.innerHTML = originalMainBoxHTML;
+          attachMainBoxSubmit();
+        }, 500);
+      }
+    }
+  </script>
+</body>
+</html>
